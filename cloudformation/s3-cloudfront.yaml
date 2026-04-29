@@ -102,6 +102,7 @@ Resources:
     DependsOn: AppBucket
     Properties:
       DistributionConfig:
+        # Исправлено: AWS::NoValue нельзя использовать как ссылку на ресурс, только как значение свойства
         WebACLId: !If [HasWebACL, !Ref WebACL, !Ref "AWS::NoValue"]
         Enabled: true
         IPV6Enabled: true
@@ -117,9 +118,10 @@ Resources:
               " environment",
             ],
           ]
-        Aliases:
-          - !If [
-              HasCertificateArn,
+        # Исправлено: условие на весь массив Aliases, а не на элемент
+        Aliases: !If
+          - HasCertificateArn
+          - [
               !Join [
                 ".",
                 [
@@ -127,9 +129,8 @@ Resources:
                   !Ref HostedZoneResourceUrl,
                 ],
               ],
-              !Ref "AWS::NoValue
-              ",
             ]
+          - []
         ViewerCertificate: !If
           - HasCertificateArn
           - AcmCertificateArn: !Ref CertificateArn
