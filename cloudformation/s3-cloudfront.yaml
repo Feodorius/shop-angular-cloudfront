@@ -59,7 +59,7 @@ Resources:
       BucketName: !If
         - HasS3BucketName
         - !Ref S3BucketName
-        - !Sub "${AWS::StackName}-${AWS::AccountId}"
+        - !Sub "${AWS::StackName}-${AWS::AccountId}-${Environment}"
       WebsiteConfiguration:
         IndexDocument: index.html
       CorsConfiguration:
@@ -102,23 +102,21 @@ Resources:
     DependsOn: AppBucket
     Properties:
       DistributionConfig:
-        # Исправлено: AWS::NoValue нельзя использовать как ссылку на ресурс, только как значение свойства
         WebACLId: !If [HasWebACL, !Ref WebACL, !Ref "AWS::NoValue"]
         Enabled: true
         IPV6Enabled: true
         HttpVersion: http2
         DefaultRootObject: index.html
-        Comment:
-          !Join [
+        Comment: !Join [
             "",
             [
               !If [HasAppName, !Ref AppName, !Ref "AWS::StackName"],
-              " app CloudFront distribution for ",
+              " app
+              CloudFront distribution for ",
               !Ref Environment,
               " environment",
             ],
           ]
-        # Исправлено: условие на весь массив Aliases, а не на элемент
         Aliases: !If
           - HasCertificateArn
           - [
